@@ -1,10 +1,10 @@
-import makeWASocket, { useMultiFileAuthState, DisconnectReason } from '@whiskeysockets/baileys';
-import pino from 'pino';
-import express from 'express';
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
+const pino = require('pino');
+const express = require('express');
 
 const app = express();
 app.get('/', (req, res) => res.send('IssackWA Bot Running!'));
-app.listen(process.env.PORT || 10000, () => console.log('Server running'));
+app.listen(process.env.PORT || 10000);
 
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState('auth');
@@ -20,33 +20,28 @@ async function startBot() {
             try {
                 let code = await sock.requestPairingCode(number);
                 console.log(`PAIRING CODE: ${code}`);
-            } catch(e){ console.log(e) }
-        }, 3000);
+            } catch(e){ console.log("Error getting code:", e) }
+        }, 5000);
     }
 
     sock.ev.on('creds.update', saveCreds);
-    sock.ev.on('connection.update', async (update) => {
+    sock.ev.on('connection.update', (update) => {
         const { connection, lastDisconnect } = update;
         if(connection === 'close'){
             if(lastDisconnect?.error?.output?.statusCode!== DisconnectReason.loggedOut){
                 startBot();
             }
         } else if(connection === 'open'){
-            console.log('Bot Connected!');
+            console.log('Connected!');
         }
     });
-
     sock.ev.on('messages.upsert', async ({ messages }) => {
         const msg = messages[0];
         if(!msg.message) return;
         const text = msg.message.conversation || msg.message.extendedTextMessage?.text || "";
-        if(text.toLowerCase() === 'hi' || text.toLowerCase() === 'hello'){
-            await sock.sendMessage(msg.key.remoteJid, { text: 'Hello! Issack Bot Online ta e 🤖' });
-        }
-        if(text.toLowerCase() === 'ping'){
-            await sock.sendMessage(msg.key.remoteJid, { text: 'Pong! 🏓' });
+        if(text.toLowerCase() === 'hi'){
+            await sock.sendMessage(msg.key.remoteJid, { text: 'Hi! Bot Online e 🤖' });
         }
     });
 }
-startBot();}
 startBot();
