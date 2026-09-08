@@ -1,11 +1,18 @@
-const fs = require('fs-extra'); if(fs.existsSync('./auth')) fs.removeSync('./auth');
+const express = require('express');
+const app = express();
+app.get('/', (r,s)=>s.send('Bot Live'));
+app.listen(process.env.PORT||10000);
+const fs = require('fs-extra');
+// auth delete duh chuan he line chiah hi dah rawh, a chung a mi kha delete
+if(fs.existsSync('./auth')){ try{fs.removeSync('./auth')}catch(e){} }
+const config = require('./config');
 const express = require('express');
 const app = express();
 app.get('/', (r,s)=>s.send('IssackWA-Bot Live 🔥 - No Quiz'));
 app.listen(process.env.PORT||10000);
 
 const fs = require('fs-extra');
-const config = require('./config');
+const config = ;
 let mode = 'public';
 let coins = fs.existsSync('./coins.json')? JSON.parse(fs.readFileSync('./coins.json')) : {};
 const saveCoins = ()=>fs.writeFileSync('./coins.json', JSON.stringify(coins));
